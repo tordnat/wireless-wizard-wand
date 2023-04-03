@@ -6,15 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  container-job:
-    # The type of runner that the job will run on
+  build:
     runs-on: ubuntu-latest
-		# Container
-    container: 
-	image: nordicplayground/nrfconnect-sdk:v2.3-branch
-
+    container:
+      image: nordicplayground/nrfconnect-sdk:v2.3-branch
     steps:
-      - uses: actions/checkout@v3
-      - name: Build for thingy53
-        run: west build always -b thingy53_nrf5340_cpuapp -p
-
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - run: west build -b thingy53_nrf5340_cpuapp -p
