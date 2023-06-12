@@ -1,0 +1,26 @@
+/*
+* Wireless Wizard Wand
+*
+* Configured for Adafruit Feather nRF52840 Express
+*/
+
+/ {
+  chosen {
+    zephyr,console = &cdc_acm_uart0;
+  };
+};
+
+&zephyr_udc0 {
+cdc_acm_uart0: cdc_acm_uart0 {
+                 compatible = "zephyr,cdc-acm-uart";
+               };
+};
+
+&i2c0 {
+	status = "okay";
+
+	bmi270@68 {
+		compatible = "bosch,bmi270";
+		reg = <0x68>;
+	};
+};

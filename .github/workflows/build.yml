@@ -15,4 +15,4 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - run: west build -b thingy53_nrf5340_cpuapp -p
+      - run: west build -b adafruit_feather_nrf52840 -p

@@ -1,136 +1,83 @@
 /*
- * Copyright (c) 2021 Nordic Semiconductor ASA
+ * Copyright (c) 2012-2014 Wind River Systems, Inc.
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <zephyr/kernel.h>
-#include <ei_wrapper.h>
+#include <zephyr/usb/usb_device.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/sensor.h>
 
-#include "input_data.h"
-
-#define FRAME_ADD_INTERVAL_MS	100
-
-static size_t frame_surplus;
-
-
-static void result_ready_cb(int err)
+int main(void)
 {
-	if (err) {
-		printk("Result ready callback returned error (err: %d)\n", err);
-		return;
+  usb_enable(NULL);
+	const struct device *const dev = DEVICE_DT_GET_ONE(bosch_bmi270);
+	struct sensor_value acc[3], gyr[3];
+	struct sensor_value full_scale, sampling_freq, oversampling;
+
+	if (!device_is_ready(dev)) {
+		printk("Device %s is not ready\n", dev->name);
+		return 0;
 	}
 
-	const char *label;
-	float value;
-	float anomaly;
 
-	printk("\nClassification results\n");
-	printk("======================\n");
+	printk("Device %p name is %s%s\n", dev, dev->name,"\U00002705");
 
-	while (true) {
-		err = ei_wrapper_get_next_classification_result(&label, &value, NULL);
-
-		if (err) {
-			if (err == -ENOENT) {
-				err = 0;
-			}
-			break;
-		}
-
-		printk("Value: %.2f\tLabel: %s\n", value, label);
-	}
-
-	if (err) {
-		printk("Cannot get classification results (err: %d)", err);
-	} else {
-		if (ei_wrapper_classifier_has_anomaly()) {
-			err = ei_wrapper_get_anomaly(&anomaly);
-			if (err) {
-				printk("Cannot get anomaly (err: %d)\n", err);
-			} else {
-				printk("Anomaly: %.2f\n", anomaly);
-			}
-		}
-	}
-
-	if (frame_surplus > 0) {
-		err = ei_wrapper_start_prediction(0, 1);
-		if (err) {
-			printk("Cannot restart prediction (err: %d)\n", err);
-		} else {
-			printk("Prediction restarted...\n");
-		}
-
-		frame_surplus--;
-	}
-}
-
-void main(void)
-{
-	int err = ei_wrapper_init(result_ready_cb);
-
-	if (err) {
-		printk("Edge Impulse wrapper failed to initialize (err: %d)\n",
-		       err);
-		return;
-	};
-
-	if (ARRAY_SIZE(input_data) < ei_wrapper_get_window_size()) {
-		printk("Not enough input data\n");
-		return;
-	}
-
-	if (ARRAY_SIZE(input_data) % ei_wrapper_get_frame_size() != 0) {
-		printk("Improper number of input samples\n");
-		return;
-	}
-
-	printk("Machine learning model sampling frequency: %zu\n",
-	       ei_wrapper_get_classifier_frequency());
-	printk("Labels assigned by the model:\n");
-	for (size_t i = 0; i < ei_wrapper_get_classifier_label_count(); i++) {
-		printk("- %s\n", ei_wrapper_get_classifier_label(i));
-	}
-	printk("\n");
-
-	size_t cnt = 0;
-
-	/* input_data is defined in input_data.h file. */
-	err = ei_wrapper_add_data(&input_data[cnt],
-				  ei_wrapper_get_window_size());
-	if (err) {
-		printk("Cannot provide input data (err: %d)\n", err);
-		printk("Increase CONFIG_EI_WRAPPER_DATA_BUF_SIZE\n");
-		return;
-	}
-	cnt += ei_wrapper_get_window_size();
-
-	err = ei_wrapper_start_prediction(0, 0);
-	if (err) {
-		printk("Cannot start prediction (err: %d)\n", err);
-	} else {
-		printk("Prediction started...\n");
-	}
-
-	/* Predictions for additional data are triggered in the result ready
-	 * callback. The prediction start can be triggered before the input
-	 * data is provided. In that case the prediction is started right
-	 * after the prediction window is filled with data.
+	/* Setting scale in G, due to loss of precision if the SI unit m/s^2
+	 * is used
 	 */
-	frame_surplus = (ARRAY_SIZE(input_data) - ei_wrapper_get_window_size())
-			/ ei_wrapper_get_frame_size();
+	full_scale.val1 = 2;            /* G */
+	full_scale.val2 = 0;
+	sampling_freq.val1 = 100;       /* Hz. Performance mode */
+	sampling_freq.val2 = 0;
+	oversampling.val1 = 1;          /* Normal mode */
+	oversampling.val2 = 0;
 
-	while (cnt < ARRAY_SIZE(input_data)) {
-		err = ei_wrapper_add_data(&input_data[cnt],
-					  ei_wrapper_get_frame_size());
-		if (err) {
-			printk("Cannot provide input data (err: %d)\n", err);
-			printk("Increase CONFIG_EI_WRAPPER_DATA_BUF_SIZE\n");
-			return;
-		}
-		cnt += ei_wrapper_get_frame_size();
+	sensor_attr_set(dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_FULL_SCALE,
+			&full_scale);
+	sensor_attr_set(dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_OVERSAMPLING,
+			&oversampling);
+	/* Set sampling frequency last as this also sets the appropriate
+	 * power mode. If already sampling, change to 0.0Hz before changing
+	 * other attributes
+	 */
+	sensor_attr_set(dev, SENSOR_CHAN_ACCEL_XYZ,
+			SENSOR_ATTR_SAMPLING_FREQUENCY,
+			&sampling_freq);
 
-		k_sleep(K_MSEC(FRAME_ADD_INTERVAL_MS));
+
+	/* Setting scale in degrees/s to match the sensor scale */
+	full_scale.val1 = 500;          /* dps */
+	full_scale.val2 = 0;
+	sampling_freq.val1 = 100;       /* Hz. Performance mode */
+	sampling_freq.val2 = 0;
+	oversampling.val1 = 1;          /* Normal mode */
+	oversampling.val2 = 0;
+
+	sensor_attr_set(dev, SENSOR_CHAN_GYRO_XYZ, SENSOR_ATTR_FULL_SCALE,
+			&full_scale);
+	sensor_attr_set(dev, SENSOR_CHAN_GYRO_XYZ, SENSOR_ATTR_OVERSAMPLING,
+			&oversampling);
+	/* Set sampling frequency last as this also sets the appropriate
+	 * power mode. If already sampling, change sampling frequency to
+	 * 0.0Hz before changing other attributes
+	 */
+	sensor_attr_set(dev, SENSOR_CHAN_GYRO_XYZ,
+			SENSOR_ATTR_SAMPLING_FREQUENCY,
+			&sampling_freq);
+	while (1) {
+		/* 10ms period, 100Hz Sampling frequency */
+		k_sleep(K_MSEC(10));
+
+		sensor_sample_fetch(dev);
+
+		sensor_channel_get(dev, SENSOR_CHAN_ACCEL_XYZ, acc);
+		sensor_channel_get(dev, SENSOR_CHAN_GYRO_XYZ, gyr);
+		printk("\U0001F5FF AX: %d.%06d; AY: %d.%06d; AZ: %d.%06d;\n ",
+		       acc[0].val1, acc[0].val2,
+		       acc[1].val1, acc[1].val2,
+		       acc[2].val1, acc[2].val2);
 	}
+	return 0;
 }
