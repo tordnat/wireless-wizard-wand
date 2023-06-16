@@ -1,6 +1,3 @@
 build/
 .vscode/
-edge-impulse-sdk/
-tflite-model/
-model-parameters/
 .DS_Store
