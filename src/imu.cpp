@@ -13,9 +13,9 @@ void imu_get_acceleration(struct sensor_value* value){ //May need error handling
 }
 
 //Update IMU acceleration sample
-int imu_sample_accel(){
+void imu_sample_accel(){
   int err;
-  err = sensor_sample_fetch_chan(imu_dev, SENSOR_CHAN_ACCEL_XYZ);
+  err = sensor_sample_fetch(imu_dev);
   if(err < 0){
     printf("BMI270 Sensor sample accelerometer update error\n");
   }
@@ -26,7 +26,6 @@ void imu_init(){
     imu_dev = DEVICE_DT_GET_ONE(bosch_bmi270);
     if (imu_dev == NULL) {
         printf("Could not get BMI270 device\n");
-        return 1;
     }
   imu_configure();
 }

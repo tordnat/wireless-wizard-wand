@@ -5,3 +5,5 @@
   
 void imu_get_acceleration(struct sensor_value* value);
 void imu_init();
+void imu_configure();
+void imu_sample_accel();
