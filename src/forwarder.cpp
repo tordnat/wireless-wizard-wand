@@ -1,10 +1,14 @@
 #include <zephyr/kernel.h>
-#include <stdio.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/drivers/sensor.h>
+#include <stdio.h>
 #include "imu.h"
 #include "forwarder.h"
 
+LOG_MODULE_REGISTER(data_forwarder);
+
 int k_forwarder(){
+  LOG_DBG("Started Data Forwarder module");
   // No buffering
   setvbuf(stdout, NULL, _IONBF, 0);
   struct sensor_value imu_acceleration[3];
@@ -21,7 +25,6 @@ int k_forwarder(){
             sensor_value_to_double(&imu_acceleration[2]));
     //Wait
     while (k_timer_status_get(&next_val_timer) <= 0);
-
 	}
 	return 0;
 }

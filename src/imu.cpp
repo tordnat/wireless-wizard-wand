@@ -1,10 +1,14 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/logging/log.h>
 #include <stdio.h>
 #include <imu.h>
 
+LOG_MODULE_REGISTER(imu);
 
 static const struct device *imu_dev;
+
+//Prototypes for readability
 static void imu_configure();
 static void imu_sample_accel();
 
@@ -19,7 +23,7 @@ static void imu_sample_accel(){
   int err;
   err = sensor_sample_fetch(imu_dev);
   if(err < 0){
-    printf("BMI270 Sensor sample accelerometer update error\n");
+    LOG_ERR("BMI270 Sensor sample accelerometer update error\n");
   }
 }
 
@@ -27,9 +31,10 @@ static void imu_sample_accel(){
 void imu_init(){
     imu_dev = DEVICE_DT_GET_ONE(bosch_bmi270);
     if (imu_dev == NULL) {
-        printf("Could not get BMI270 device\n");
+        LOG_ERR("Could not get BMI270 device\n");
     }
-  imu_configure();
+    imu_configure();
+    LOG_INF("IMU Initialized");
 }
 
 static void imu_configure(){
@@ -49,4 +54,5 @@ static void imu_configure(){
   //Set sampling frequency also sets power mode
   sensor_attr_set(imu_dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_SAMPLING_FREQUENCY,
       &imu_sampling_freq);
+
 }
