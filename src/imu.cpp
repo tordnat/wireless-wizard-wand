@@ -5,6 +5,8 @@
 
 
 static const struct device *imu_dev;
+static void imu_configure();
+static void imu_sample_accel();
 
 //Get IMU acceleration
 void imu_get_acceleration(struct sensor_value* value){ //May need error handling
@@ -13,7 +15,7 @@ void imu_get_acceleration(struct sensor_value* value){ //May need error handling
 }
 
 //Update IMU acceleration sample
-void imu_sample_accel(){
+static void imu_sample_accel(){
   int err;
   err = sensor_sample_fetch(imu_dev);
   if(err < 0){
@@ -30,7 +32,7 @@ void imu_init(){
   imu_configure();
 }
 
-void imu_configure(){
+static void imu_configure(){
   struct sensor_value full_scale, imu_sampling_freq, oversampling;
   //Set sensor configuration
   full_scale.val1 = 2; //G
