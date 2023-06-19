@@ -4,19 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ei_run_classifier.h"
+#include "ei.h"
 #include "imu.h"
 
+#define TIME_BETWEEN_SAMPLES_US (1000000 / (SAMPLING_FREQ - 1))
 
 // to classify 1 frame of data you need EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE values
 static float features[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
-volatile struct sensor_value imu_acceleration;
-int main() {
-  // output immediately without buffering
-  usb_enable(NULL);
-  setvbuf(stdout, NULL, _IONBF, 0);
-  
-  imu_init();
-  struct sensor_value accel[3];
+
+
+int k_ei() {
+  struct sensor_value imu_acceleration[3];
 
   while (1) {
       for (size_t ix = 0; ix < EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE; ix += EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME) {
@@ -25,12 +23,12 @@ int main() {
           k_timer_init(&next_val_timer, NULL, NULL);
           k_timer_start(&next_val_timer, K_USEC(TIME_BETWEEN_SAMPLES_US), K_NO_WAIT);
 
-          imu_get_acceleration(accel);
+          imu_get_acceleration(imu_acceleration);
 
           // fill the features array
-          features[ix + 0] = sensor_value_to_double(&accel[0]);
-          features[ix + 1] = sensor_value_to_double(&accel[1]);
-          features[ix + 2] = sensor_value_to_double(&accel[2]);
+          features[ix + 0] = sensor_value_to_double(&imu_acceleration[0]);
+          features[ix + 1] = sensor_value_to_double(&imu_acceleration[1]);
+          features[ix + 2] = sensor_value_to_double(&imu_acceleration[2]);
           while (k_timer_status_get(&next_val_timer) <= 0);
       }
 

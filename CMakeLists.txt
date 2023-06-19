@@ -8,7 +8,7 @@ project(wireless_wizard_wand)
 
 zephyr_compile_options(-fdiagnostics-color=always)
 include_directories(src/include)
-target_sources(app PRIVATE src/ei.cpp src/imu.cpp)
+target_sources(app PRIVATE src/main.cpp src/ei.cpp src/imu.cpp src/forwarder.cpp)
 
 add_definitions(-DEIDSP_USE_CMSIS_DSP=1
                 -DEIDSP_LOAD_CMSIS_DSP_SOURCES=1
