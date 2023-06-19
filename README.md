@@ -3,3 +3,8 @@ Nordic Semiconductor Wireless Wizard Wand (WWW) using nRF52840 with Edge Impulse
 
 
 ![workflow](https://github.com/tordnat/wireless-wizard-wand/actions/workflows/build.yml/badge.svg)
+
+
+## Installation
+
+- Download your Edge Impulse library here (link)
