@@ -1,5 +1,10 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef _IMU_H_
 #define _IMU_H_
+
 
 // Globals
 #define SAMPLING_FREQ 101 //Hz
@@ -8,5 +13,8 @@
 void imu_get_acceleration(struct sensor_value* value);
 void imu_init(void);
 
+#endif
 
+#ifdef __cplusplus
+}
 #endif

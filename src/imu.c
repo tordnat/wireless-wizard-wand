@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <imu.h>
 
-LOG_MODULE_REGISTER(imu);
+LOG_MODULE_REGISTER(imu, LOG_LEVEL_INF);
 
 static const struct device *imu_dev;
 

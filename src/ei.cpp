@@ -7,8 +7,9 @@
 #include "ei_run_classifier.h"
 #include "ei.h"
 #include "imu.h"
+#include "zigbee.h"
 
-LOG_MODULE_REGISTER(edge_impulse);
+LOG_MODULE_REGISTER(edge_impulse, LOG_LEVEL_INF);
 
 // to classify 1 frame of data you need EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE values
 static float features[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
@@ -44,16 +45,23 @@ int k_ei() {
 
       // run classifier
       EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false);
-      LOG_INF("run_classifier returned: %d\n", res);
+      LOG_DBG("run_classifier returned: %d\n", res);
       if (res != 0) return 1;
 
       // print predictions
-      LOG_INF("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
+      LOG_DBG("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
           result.timing.dsp, result.timing.classification, result.timing.anomaly);
-
+      
       // print the predictions
       for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-          LOG_INF("%s:\t%.5f\n", result.classification[ix].label, result.classification[ix].value);
+          LOG_DBG("%s:\t%.5f\n", result.classification[ix].label, result.classification[ix].value);
+
+      }
+      if (result.classification[0].value > (float)0.99){
+        send_light_on();
+      }
+      if(result.classification[2].value > (float)0.99){
+        send_light_off();
       }
   #if EI_CLASSIFIER_HAS_ANOMALY == 1
       LOG_INF("anomaly:\t%.3f\n", result.anomaly);
