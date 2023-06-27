@@ -5,7 +5,7 @@
 #include "imu.h"
 #include "forwarder.h"
 
-LOG_MODULE_REGISTER(data_forwarder);
+LOG_MODULE_REGISTER(data_forwarder, LOG_LEVEL_INF);
 
 int k_forwarder(){
   LOG_DBG("Started Data Forwarder module");

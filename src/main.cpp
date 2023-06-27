@@ -12,14 +12,16 @@
 #include "ei.h"
 #include "imu.h"
 #include "forwarder.h"
-
-LOG_MODULE_REGISTER(main);
+#include "zigbee.h"
+#include "led_indication.h"
+LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 int main(void)
 {
   usb_enable(NULL);
   LOG_INF("Wireless Wizard Wand started on %s", CONFIG_BOARD);
-	imu_init();
-  k_forwarder();
+  imu_init();
+  k_zigbee();
+  k_ei();
 	return 0;
 }
