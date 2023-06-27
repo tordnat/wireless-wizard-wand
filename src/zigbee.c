@@ -22,9 +22,11 @@
 #include <zigbee/zigbee_app_utils.h>
 #include <zigbee/zigbee_error_handler.h>
 #include <zb_nrf_platform.h>
+
 #include "zigbee_memconfig.h"
 #include "zigbee_dimmer.h"
 #include "zigbee.h"
+#include "led_indication.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,8 +51,6 @@ extern "C" {
 
 /* Dim step size - increases/decreses current level (range 0x000 - 0xfe). */
 #define DIMM_STEP                  15
-/* Button ID used to enable sleepy behavior. */
-
 
 /* Transition time for a single step operation in 0.1 sec units.
  * 0xFFFF - immediate change.
@@ -62,9 +62,6 @@ extern "C" {
  */
 #define BUTTON_LONG_POLL_TMO       K_MSEC(500)
 
-#if !defined ZB_ED_ROLE
-#error Define ZB_ED_ROLE to compile light switch (End Device) source code.
-#endif
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -227,13 +224,10 @@ static void app_clusters_attr_init(void)
 	dev_ctx.identify_attr.identify_time = ZB_ZCL_IDENTIFY_IDENTIFY_TIME_DEFAULT_VALUE;
 }
 
-/**@brief Function to toggle the identify LED.
- *
- * @param  bufid  Unused parameter, required by ZBOSS scheduler API.
- */
 static void toggle_identify_led(zb_bufid_t bufid)
 {
 	static int blink_status;
+  conn_led_toggle();
 	ZB_SCHEDULE_APP_ALARM(toggle_identify_led, bufid, ZB_MILLISECONDS_TO_BEACON_INTERVAL(100));
 }
 
@@ -253,9 +247,11 @@ static void identify_cb(zb_bufid_t bufid)
 		zb_err_code = ZB_SCHEDULE_APP_ALARM_CANCEL(toggle_identify_led, ZB_ALARM_ANY_PARAM);
 		ZVUNUSED(zb_err_code);
 
-		/* Update network status/idenitfication LED. */
+		// Update network status LED
 		if (ZB_JOINED()) {
+      conn_led_set(LED_ON);
 		} else {
+      conn_led_set(LED_OFF);
 		}
 	}
 }
@@ -339,8 +335,10 @@ static void find_light_bulb_cb(zb_bufid_t bufid)
 			bulb_ctx.endpoint);
 
 		k_timer_stop(&bulb_ctx.find_alarm);
+    red_led_set(LED_ON);
 	} else {
 		LOG_INF("Bulb not found, try again");
+    red_led_set(LED_OFF);
 	}
 
 	if (bufid) {
@@ -481,7 +479,7 @@ int k_zigbee(void)
 	/* Initialize. */
 
 	alarm_timers_init();
-
+  leds_init();
 	zigbee_erase_persistent_storage(ERASE_PERSISTENT_CONFIG);
 	zb_set_ed_timeout(ED_AGING_TIMEOUT_64MIN);
 	zb_set_keepalive_timeout(ZB_MILLISECONDS_TO_BEACON_INTERVAL(3000));
@@ -493,12 +491,6 @@ int k_zigbee(void)
 	 * initialization and enable sleepy behavior at device if defined button
 	 * is pressed.
 	 */
-
-
-	/* Power off unused sections of RAM to lower device power consumption. */
-	if (IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)) {
-		power_down_unused_ram();
-	}
 
 	/* Register dimmer switch device context (endpoints). */
 	ZB_AF_REGISTER_DEVICE_CTX(&dimmer_switch_ctx);

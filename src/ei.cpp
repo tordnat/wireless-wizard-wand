@@ -45,16 +45,16 @@ int k_ei() {
 
       // run classifier
       EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false);
-      LOG_INF("run_classifier returned: %d\n", res);
+      LOG_DBG("run_classifier returned: %d\n", res);
       if (res != 0) return 1;
 
       // print predictions
-      LOG_INF("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
+      LOG_DBG("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
           result.timing.dsp, result.timing.classification, result.timing.anomaly);
       
       // print the predictions
       for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-          LOG_INF("%s:\t%.5f\n", result.classification[ix].label, result.classification[ix].value);
+          LOG_DBG("%s:\t%.5f\n", result.classification[ix].label, result.classification[ix].value);
 
       }
       if (result.classification[0].value > (float)0.99){
