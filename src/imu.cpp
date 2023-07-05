@@ -42,7 +42,7 @@ static void imu_work_handler(struct k_work *work){
     imu_data[2] = 0.0f;
 	}
   //Copy to buffer
-  if (ei_sample_cb(imu_data) && false){ //FSM condition for EI or Forwarder
+  if (ei_sample_cb(imu_data) && true){ //FSM condition for EI or Forwarder
       k_timer_stop(&imu_timer); //Buffer full, stop sampling
     }
 
@@ -98,11 +98,11 @@ static bool imu_configure(){
   int ret0, ret1, ret2;
 
   //Set sensor configuration
-  full_scale.val1 = 2; //G
+  full_scale.val1 = IMU_FULL_SCALE_RANGE; //G
   full_scale.val2 = 0;
-  imu_sampling_freq.val1 = SAMPLING_FREQ; //Hz
+  imu_sampling_freq.val1 = IMU_ACCELEROMETER_SAMPLING_FREQ; //Hz
   imu_sampling_freq.val2 = 0;
-  oversampling.val1 = 1; // BMI270: Normal Mode
+  oversampling.val1 = IMU_OPERATION_MODE;
   oversampling.val2 = 0;
 
   ret0 = sensor_attr_set(imu_dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_FULL_SCALE,
@@ -130,6 +130,7 @@ static void imu_printf_data(){
           imu_data[1],
           imu_data[2]); 
 }
+
 // Utilities
 void imu_set_printf_data(bool val){
   LOG_INF("IMU Print Data: %d", val);

@@ -9,16 +9,16 @@
 #include "zigbee.h"
 #include "led_indication.h"
 
+#define STARTUP_DELAY_MS 2000
+
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 int main(void){
   usb_enable(NULL);
-  k_sleep(K_MSEC(2000));
+  k_sleep(K_MSEC(STARTUP_DELAY_MS));
   LOG_INF("Wireless Wizard Wand started on %s", CONFIG_BOARD);
   imu_init();
-  k_sleep(K_MSEC(2000));
-  k_forwarder();
-  // k_zigbee();
-  // k_ei();
+  k_zigbee();
+  k_ei();
 	return 0;
 }

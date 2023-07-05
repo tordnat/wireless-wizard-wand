@@ -396,7 +396,7 @@ void send_light_on(void){
 
 int k_zigbee(void)
 {
-	LOG_INF("Starting Light Switch example");
+	LOG_INF("Initializing Zigbee");
 
 	//Initialize. 
 	alarm_timers_init();
@@ -417,8 +417,7 @@ int k_zigbee(void)
 	//Register handlers to identify notifications 
 	ZB_AF_SET_IDENTIFY_NOTIFICATION_HANDLER(LIGHT_SWITCH_ENDPOINT, identify_cb);
 
-
 	//Start Zigbee default thread. 
 	zigbee_enable();
-	LOG_INF("Light Switch example started");
+	LOG_INF("Zigbee thread started");
 }
