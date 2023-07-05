@@ -19,6 +19,5 @@ int main(void){
   LOG_INF("Wireless Wizard Wand started on %s", CONFIG_BOARD);
   imu_init();
   k_zigbee();
-  k_ei();
-	return 0;
+	k_sleep(K_FOREVER);
 }

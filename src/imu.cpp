@@ -45,7 +45,6 @@ static void imu_work_handler(struct k_work *work){
 
 static void imu_buffer_to_ei_handler(){
   if (ei_fill_feature_buffer_cb(imu_data) == true){ //Pass imu_data to EI
-    LOG_DBG("Buffer full");
     imu_set_buffering_to_ei(false);
     imu_stop_sampling();
   }

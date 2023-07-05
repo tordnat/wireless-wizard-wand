@@ -13,8 +13,15 @@
 #include "ei_run_classifier.h"
 #include "ei.h"
 
+#define SAMPLE_TIME_MINIMUM (((EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE/IMU_AXIS_SAMPLED))*(TIME_BETWEEN_SAMPLES_US))
+#define SAMPLING_TIME_LIMIT_US SAMPLE_TIME_MINIMUM*2
+
 LOG_MODULE_REGISTER(edge_impulse, LOG_LEVEL_INF);
+K_THREAD_DEFINE(ei_thread, EI_STACK_SIZE, k_ei,
+                NULL, NULL, NULL,
+                EI_THREAD_PRIORITY, 0, 0);
 K_MUTEX_DEFINE(feature_buffer_mutex);
+
 // to classify 1 frame of data you need EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE values
 struct FeatureBuffer {
   int index;
@@ -24,30 +31,39 @@ struct FeatureBuffer {
 
 //Forward declarations
 static void dummy_ei_result_cb(ei_impulse_result_t *result);
+static void ei_event_handler(bool timeout, ei_impulse_result_t *result, FeatureBuffer *f_buff);
 static bool ei_classify(FeatureBuffer *f_buff, ei_impulse_result_t *result);
+static bool ei_sampling_timeout();
 static void ei_log_predictions(ei_impulse_result_t *result);
 static bool copy_to_features_buffer(float* sample, FeatureBuffer *f_buff);
 static void clear_feature_buffer(FeatureBuffer *f_buff);
 
+
 FeatureBuffer features = {0, false}; //Global shared buffer
 
 int k_ei() {
-  LOG_DBG("Started Edge Impulse module");
-
+  LOG_INF("Started Edge Impulse thread");
   while (1) {
     ei_impulse_result_t result = { 0 };
     clear_feature_buffer(&features);
     imu_start_sampling_w_ei(TIME_BETWEEN_SAMPLES_US);
-
-    while (!features.is_full){ //Race condition
-      k_sleep(K_MSEC(200));
-    }
-    // frame full? then classify
-    if (ei_classify(&features, &result) == true){
-      ei_log_predictions(&result);
-      dummy_ei_result_cb(&result);
-    }
+    ei_event_handler(ei_sampling_timeout(), &result, &features);
   }
+}
+
+static void ei_event_handler(bool timeout, ei_impulse_result_t *result, FeatureBuffer *f_buff){
+  if (!timeout && ei_classify(f_buff, result)){
+    ei_log_predictions(result);
+    dummy_ei_result_cb(result);
+  }
+}
+
+static bool ei_sampling_timeout(){
+  if(k_sleep(K_USEC(SAMPLING_TIME_LIMIT_US)) == 0){
+    LOG_ERR("Sampling timed out");
+    return true;
+  }
+  return false;
 }
 
 static void dummy_ei_result_cb(ei_impulse_result_t *result){
@@ -90,6 +106,10 @@ static void ei_log_predictions(ei_impulse_result_t *result){
 bool ei_fill_feature_buffer_cb(float* sample){
   if (k_mutex_lock(&feature_buffer_mutex, K_MSEC(SHARED_BUFFER_MUTEX_TIMEOUT)) == 0){ //Avoid deadlock
     bool ret = copy_to_features_buffer(sample, &features);
+    if(ret == true){
+      LOG_DBG("Buffer full");
+      k_wakeup(ei_thread);
+    }
     k_mutex_unlock(&feature_buffer_mutex);
     return ret;
   } else {
@@ -115,8 +135,8 @@ static bool copy_to_features_buffer(float* sample, FeatureBuffer *f_buff){
   return false; //Buffer is not full
 }
 
+//Clears the feature buffer for overwriting
 static void clear_feature_buffer(FeatureBuffer *f_buff){
   f_buff->index = 0;
   f_buff->is_full = false;
-  memset(f_buff->buffer, 0, sizeof(f_buff->buffer));
 }
