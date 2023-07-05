@@ -37,7 +37,7 @@ int k_ei() {
   while (1) {
     ei_impulse_result_t result = { 0 };
     clear_feature_buffer(&features);
-    imu_start_sampling(TIME_BETWEEN_SAMPLES_US);
+    imu_start_sampling_w_ei(TIME_BETWEEN_SAMPLES_US);
 
     while (!features.is_full){ //Race condition
       k_sleep(K_MSEC(200));
@@ -87,13 +87,13 @@ static void ei_log_predictions(ei_impulse_result_t *result){
   #endif
 }
 
-bool ei_sample_cb(float* sample){
+bool ei_fill_feature_buffer_cb(float* sample){
   if (k_mutex_lock(&feature_buffer_mutex, K_MSEC(SHARED_BUFFER_MUTEX_TIMEOUT)) == 0){ //Avoid deadlock
     bool ret = copy_to_features_buffer(sample, &features);
     k_mutex_unlock(&feature_buffer_mutex);
     return ret;
   } else {
-    LOG_ERR("Cannot lock feature buffer after");
+    LOG_ERR("Cannot lock feature buffer mutex");
     return false; //Since buffer is not written to, buffer is not filled
   }
 }
