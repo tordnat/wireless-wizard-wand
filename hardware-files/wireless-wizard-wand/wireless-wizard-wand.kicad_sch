@@ -1,0 +1,31 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid e8160b8e-d435-40ef-b6e3-ac46b51e8a09)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 60.96 66.04) (size 43.18 16.51) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 8be56695-93a6-46a3-98c1-a4cf3a25df7b)
+    (property "Sheetname" "Adafruit Feather Express nRF52840" (at 60.96 65.3284 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "/Users/tordnatlandsmyr/Desktop/Nordic/Adafruit nRF52 Bluefruit Feather rev G/Adafruit nRF52 Bluefruit Feather rev G.kicad_sch" (at 60.96 83.1346 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "wireless-wizard-wand"
+        (path "/e8160b8e-d435-40ef-b6e3-ac46b51e8a09" (page "2"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)
