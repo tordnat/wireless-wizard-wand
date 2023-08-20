@@ -18,9 +18,10 @@ cdc_acm_uart0: cdc_acm_uart0 {
 
 &i2c0 {
 	status = "okay";
-
-	bmi270@68 {
-		compatible = "bosch,bmi270";
-		reg = <0x68>;
+	mpu6050@69 {
+		compatible = "invensense,mpu6050";
+		reg = <0x69>;
+		status = "okay";
+		//int-gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
 	};
 };
