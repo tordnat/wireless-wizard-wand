@@ -68,12 +68,19 @@ static bool ei_sampling_timeout(){
 
 static void dummy_ei_result_cb(ei_impulse_result_t *result){
   LOG_DBG("WARNING: calling DUMMY MODULE, do not deploy.");
-  if (result->classification[0].value > (float)0.99){
+  if (result->classification[2].value > (float)0.99){
     send_light_on();
   }
-  if(result->classification[2].value > (float)0.99){
+  if(result->classification[3].value > (float)0.99){
     send_light_off();
   }
+  if (result->classification[0].value > (float)0.99){
+    send_light_dimm_up();
+  }
+  if(result->classification[1].value > (float)0.99){
+    send_light_dimm_down();
+  }
+
 }
 
 static bool ei_classify(FeatureBuffer *f_buff, ei_impulse_result_t *result){
