@@ -41,6 +41,12 @@ static void clear_feature_buffer(FeatureBuffer *f_buff);
 
 FeatureBuffer features = {0, false}; //Global shared buffer
 
+//Chest variables
+
+static int calm_circle_count = 0;
+static int calm_wiper_count = 0;
+static int detection_trigger_limit = 2;
+
 int k_ei() {
   LOG_INF("Started Edge Impulse thread");
   while (1) {
@@ -69,16 +75,29 @@ static bool ei_sampling_timeout(){
 static void dummy_ei_result_cb(ei_impulse_result_t *result){
   LOG_DBG("WARNING: calling DUMMY MODULE, do not deploy.");
   if (result->classification[2].value > (float)0.99){
-    send_light_on();
+    calm_circle_count = 0;
+    calm_wiper_count = 0;
+
   }
   if(result->classification[3].value > (float)0.99){
-    send_light_off();
+    calm_circle_count = 0;
+    calm_wiper_count = 0;
   }
   if (result->classification[0].value > (float)0.99){
-    send_light_dimm_up();
+    calm_wiper_count = 0;
+    calm_circle_count += 1;
+    if (calm_circle_count >= detection_trigger_limit){
+      send_light_on();
+      calm_circle_count = 0;
+    }
   }
   if(result->classification[1].value > (float)0.99){
-    send_light_dimm_down();
+    calm_circle_count = 0;
+    calm_wiper_count += 1;
+    if (calm_wiper_count >= detection_trigger_limit){
+      send_light_off();
+      calm_wiper_count = 0;
+    }
   }
 
 }
