@@ -15,4 +15,5 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - run: west build -p always -b adafruit_feather_nrf52840
+      - run: |
+            west build -p always -b adafruit_feather_nrf52840
