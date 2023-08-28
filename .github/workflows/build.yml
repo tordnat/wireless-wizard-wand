@@ -11,9 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: nordicplayground/nrfconnect-sdk:v2.3-branch
+      image: nordicplayground/nrfconnect-sdk:v2.4-branch
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - run: pip3 install --user -U west
       - run: west build -p always -b adafruit_feather_nrf52840
