@@ -363,6 +363,18 @@ void send_light_on(void){
 				   ZB_ZCL_CMD_ON_OFF_ON_ID, 0);
 }
 
+void send_light_dimm_up(void){
+  zb_buf_get_out_delayed_ext(light_switch_send_step,
+							 ZB_ZCL_LEVEL_CONTROL_STEP_MODE_UP,
+							 0);
+}
+
+void send_light_dimm_down(void){
+  zb_buf_get_out_delayed_ext(light_switch_send_step,
+							 ZB_ZCL_LEVEL_CONTROL_STEP_MODE_DOWN,
+							 0);
+}
+
 int k_zigbee(void)
 {
 	LOG_INF("Initializing Zigbee");

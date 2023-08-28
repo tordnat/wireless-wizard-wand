@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 EdgeImpulse Inc.
+ * Copyright (c) 2023 EdgeImpulse Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,69 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "edge-impulse-sdk/porting/ei_classifier_porting.h"
-#if EI_PORTING_POSIX == 1
+#include "../ei_classifier_porting.h"
+#if EI_PORTING_PARTICLE == 1
 
-#include <inttypes.h>
-#include <math.h>
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
+#include <Particle.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
-__attribute__((weak)) EI_IMPULSE_ERROR ei_run_impulse_check_canceled() {
+#define EI_WEAK_FN __attribute__((weak))
+
+EI_WEAK_FN EI_IMPULSE_ERROR ei_run_impulse_check_canceled() {
     return EI_IMPULSE_OK;
 }
 
-/**
- * Cancelable sleep, can be triggered with signal from other thread
- */
-__attribute__((weak)) EI_IMPULSE_ERROR ei_sleep(int32_t time_ms) {
-    usleep(time_ms * 1000);
+EI_WEAK_FN EI_IMPULSE_ERROR ei_sleep(int32_t time_ms) {
+    delay(time_ms);
     return EI_IMPULSE_OK;
 }
 
 uint64_t ei_read_timer_ms() {
-    return ei_read_timer_us() / 1000;
+    return millis();
 }
 
 uint64_t ei_read_timer_us() {
-    uint64_t us; // Milliseconds
-    uint64_t s;  // Seconds
-    struct timespec spec;
-
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &spec);
-
-    s  = spec.tv_sec;
-    us = round(spec.tv_nsec / 1.0e3); // Convert nanoseconds to micros
-    if (us > 999999) {
-        s++;
-        us = 0;
-    }
-
-    return (s * 1000000) + us;
+    return micros();
 }
 
+void ei_serial_set_baudrate(int baudrate)
+{
+
+}
+
+EI_WEAK_FN void ei_putchar(char c)
+{
+    Serial.write(c);
+}
+
+EI_WEAK_FN char ei_getchar()
+{
+    char ch = 0;
+    if (Serial.available() > 0) {
+	    ch = Serial.read();
+    }
+    return ch;
+}
+
+/**
+ *  Printf function uses vsnprintf and output using Arduino Serial
+ */
 __attribute__((weak)) void ei_printf(const char *format, ...) {
-    va_list myargs;
-    va_start(myargs, format);
-    vprintf(format, myargs);
-    va_end(myargs);
+    static char print_buf[1024] = { 0 };
+
+    va_list args;
+    va_start(args, format);
+    int r = vsnprintf(print_buf, sizeof(print_buf), format, args);
+    va_end(args);
+
+    if (r > 0) {
+        Serial.write(print_buf);
+    }
 }
 
 __attribute__((weak)) void ei_printf_float(float f) {
-    ei_printf("%f", f);
+    Serial.print(f, 6);
 }
 
 __attribute__((weak)) void *ei_malloc(size_t size) {
@@ -89,4 +99,4 @@ __attribute__((weak)) void DebugLog(const char* s) {
     ei_printf("%s", s);
 }
 
-#endif // EI_PORTING_POSIX == 1
+#endif // EI_PORTING_PARTICLE == 1

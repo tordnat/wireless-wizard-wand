@@ -18,31 +18,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Generated on: 12.06.2023 12:41:50
+// Generated on: 20.08.2023 20:53:24
 
-#ifndef trained_model_GEN_H
-#define trained_model_GEN_H
+#ifndef tflite_learn_13_GEN_H
+#define tflite_learn_13_GEN_H
 
 #include "edge-impulse-sdk/tensorflow/lite/c/common.h"
 
 // Sets up the model with init and prepare steps.
-TfLiteStatus trained_model_init( void*(*alloc_fnc)(size_t,size_t) );
+TfLiteStatus tflite_learn_13_init( void*(*alloc_fnc)(size_t,size_t) );
 // Returns the input tensor with the given index.
-TfLiteStatus trained_model_input(int index, TfLiteTensor* tensor);
+TfLiteStatus tflite_learn_13_input(int index, TfLiteTensor* tensor);
 // Returns the output tensor with the given index.
-TfLiteStatus trained_model_output(int index, TfLiteTensor* tensor);
+TfLiteStatus tflite_learn_13_output(int index, TfLiteTensor* tensor);
 // Runs inference for the model.
-TfLiteStatus trained_model_invoke();
+TfLiteStatus tflite_learn_13_invoke();
 //Frees memory allocated
-TfLiteStatus trained_model_reset( void (*free)(void* ptr) );
+TfLiteStatus tflite_learn_13_reset( void (*free)(void* ptr) );
 
 
 // Returns the number of input tensors.
-inline size_t trained_model_inputs() {
+inline size_t tflite_learn_13_inputs() {
   return 1;
 }
 // Returns the number of output tensors.
-inline size_t trained_model_outputs() {
+inline size_t tflite_learn_13_outputs() {
   return 1;
 }
 

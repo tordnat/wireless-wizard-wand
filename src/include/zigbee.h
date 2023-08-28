@@ -17,18 +17,19 @@ extern "C" {
  * power-off. NOTE: If this option is set to ZB_TRUE then do full device erase
  * for all network devices before running other samples.
 */ 
-#define ERASE_PERSISTENT_CONFIG    ZB_FALSE
+#define ERASE_PERSISTENT_CONFIG    ZB_TRUE
 //Dim step size - increases/decreses current level (range 0x000 - 0xfe). 
-#define DIMM_STEP                  15
+#define DIMM_STEP                  50
 //Transition time for a single step operation in 0.1 sec units. 0xFFFF - immediate change.
-#define DIMM_TRANSACTION_TIME      2
+#define DIMM_TRANSACTION_TIME      3
 //Time after which the button state is checked again to detect button hold, the dimm command is sent again.
 #define BUTTON_LONG_POLL_TMO       K_MSEC(500)
 
 int k_zigbee(void);
 void send_light_on(void);
 void send_light_off(void);
-
+void send_light_dimm_up(void);
+void send_light_dimm_down(void);
 #endif
 
 #ifdef __cplusplus

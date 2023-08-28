@@ -77,7 +77,7 @@ static bool imu_fetch_sample_accel(){
   }
 
   if (sensor_sample_fetch(imu_dev) < 0){
-    LOG_ERR("BMI270 Sample fetch error");
+    LOG_ERR("MPU6050 Sample fetch error");
     return false;
   }
 
@@ -96,9 +96,9 @@ static bool imu_fetch_sample_accel(){
 
 //Initialise IMU
 bool imu_init(){
-  imu_dev = DEVICE_DT_GET_ONE(bosch_bmi270);
+  imu_dev = DEVICE_DT_GET_ONE(invensense_mpu6050);
   if (imu_dev == NULL) {
-    LOG_ERR("Could not get BMI270 device");
+    LOG_ERR("Could not get MPU6050 device");
     return false;
   }
   int ret = imu_configure();
@@ -113,30 +113,10 @@ bool imu_init(){
 
 
 static bool imu_configure(){
-  struct sensor_value full_scale, imu_sampling_freq, oversampling;
-  int ret0, ret1, ret2;
 
-  //Set sensor configuration
-  full_scale.val1 = IMU_FULL_SCALE_RANGE; //G
-  full_scale.val2 = 0;
-  imu_sampling_freq.val1 = IMU_ACCELEROMETER_SAMPLING_FREQ; //Hz
-  imu_sampling_freq.val2 = 0;
-  oversampling.val1 = IMU_OPERATION_MODE;
-  oversampling.val2 = 0;
+  if (1){
+    LOG_INF("IMU Configuration: None");
 
-  ret0 = sensor_attr_set(imu_dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_FULL_SCALE,
-      &full_scale);
-  ret1 = sensor_attr_set(imu_dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_OVERSAMPLING,
-      &oversampling);
-  //Set sampling frequency also sets power mode
-  ret2 = sensor_attr_set(imu_dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_SAMPLING_FREQUENCY,
-      &imu_sampling_freq);
-
-  if (ret0 == 0 && ret1 == 0 && ret2 == 0){
-    LOG_INF("IMU Configuration:");
-    LOG_INF("Scale: %d G", full_scale.val1); 
-    LOG_INF("Sampling freq: %d Hz", imu_sampling_freq.val1);
-    LOG_INF("Mode (1 = normal): %d", oversampling.val1); 
     return true;
   } else {
     return false;
