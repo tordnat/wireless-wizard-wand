@@ -82,7 +82,7 @@ Due to size constraints I decided to design a custom PCB which would house both 
 
 ***Hardware Design***
 
-The 3D-printed housing was designed in FreeCAD. It was designed with the aim of minimizing its size without sacrificing aesthetics. With limited time, this part of the project was given a lower priority. 
+The 3D-printed housing was designed in FreeCAD. It was designed with the aim of minimizing its size without sacrificing aesthetics. With limited time, this part of the project was given a lower priority. Hardware files including the PCB design are located in the *hardware-files* folder.
 
 <img src="https://github.com/tordnat/wireless-wizard-wand/blob/documentation/documentation/www-2-wand-w-chest.png" width="300" /> 
 
