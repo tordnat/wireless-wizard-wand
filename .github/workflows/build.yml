@@ -15,4 +15,15 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - run: west build -b thingy53_nrf5340_cpuapp -p
+
+      - name: Check if west is in PATH
+        run: |
+          echo $PATH
+          which west || true
+
+      - name: Install west if not available
+        run: |
+          which west || pip3 install --user west
+
+      - run: west build -b nrf52840dk_nrf52840 -p
+
