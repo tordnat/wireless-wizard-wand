@@ -2,7 +2,7 @@
 ![workflow](https://github.com/tordnat/wireless-wizard-wand/actions/workflows/build.yml/badge.svg)
 > Not under active maintainance
 
-Bring magic to your home with Nordic Semiconductor Wireless Wizard Wand (www). The wand utilizes a powerful nRF52840 chip with [Edge Impulse ML motion recognition](https://studio.edgeimpulse.com/public/181284/latest) to communicate with all your smart home appliances over Zigbee. 
+Bring magic to your home with Nordic Semiconductor Wireless Wizard Wand (www). The wand utilizes a powerful nRF52840 chip with [Edge Impulse ML motion recognition](https://studio.edgeimpulse.com/public/181284/latest) to communicate with all your smart home appliances over Zigbee. See full post [here](https://devzone.nordicsemi.com/nordic/nordic-blog/b/blog/posts/the-wireless-wizard-wand).
 
 ![demo-gif](documentation/www-loop.gif)
 
