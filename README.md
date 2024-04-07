@@ -45,13 +45,13 @@ The wand was designed and built during the course of my summer internship, and t
 with magic spells. Although not all features were implemented, the demo was a success🥳. 
 
 
-<img src="https://github.com/tordnat/wireless-wizard-wand/blob/documentation/documentation/www-closeup.png" width="300" /> 
+<img src="https://github.com/tordnat/wireless-wizard-wand/blob/main/documentation/www-closeup.png" width="300" /> 
 
 ## Hardware & Features
 
 The wand features a 3D-printed Wood-like housing which contains the electronics. The custom PCB which mounts underneath the Adafruit Feather features a 6-axis MPU6050 IMU and DA7280 haptics driver. Both components are connected to the board via I2C. The housing also features a mounting hole for the ERM vibration motor underneath the board. Cost, skill and part availability were all taken into consideration when designing the wand. The custom PCB is designed to be suitable for hand soldering for which the large SMD package sizes allow. 
 
-<img src="https://github.com/tordnat/wireless-wizard-wand/blob/documentation/documentation/www-render.png" width="500" /> 
+<img src="https://github.com/tordnat/wireless-wizard-wand/blob/main/documentation/www-render.png" width="500" /> 
 
 ***Main Components***
 - [Adafruit Feather nRF52840 Express](https://www.adafruit.com/product/4062#description)
@@ -79,13 +79,13 @@ The software was developed in VSCodium using [nRF Connect for VSCode](https://ma
 
 Due to size constraints I decided to design a custom PCB which would house both the IMU and the haptics driver. I first designed the wand to use a BMI270 low-power IMU, but had to change to a different IMU due to its small package size and high price. The MPU6050 Module was chosen due to its price and availability. Using a module instead of an IC was an easy choice since the module was cheaper than all the parts individually (for consumers). I designed the PCB to be easy to assemble, with the IMU soldered with headers underneath the PCB. I used KiCAD for the design, and ordered it through JLCPCB.
 
-<img src="https://github.com/tordnat/wireless-wizard-wand/blob/documentation/documentation/www-3d-pcb.png" width="200" /> 
+<img src="https://github.com/tordnat/wireless-wizard-wand/blob/main/documentation/www-3d-pcb.png" width="200" /> 
 
 ***Hardware Design***
 
 The 3D-printed housing was designed in FreeCAD. It was designed with the aim of minimizing its size without sacrificing aesthetics. With limited time, this part of the project was given a lower priority. Hardware files including the PCB design are located in the *hardware-files* folder.
 
-<img src="https://github.com/tordnat/wireless-wizard-wand/blob/documentation/documentation/www-2-wand-w-chest.png" width="300" /> 
+<img src="https://github.com/tordnat/wireless-wizard-wand/blob/main/documentation/www-2-wand-w-chest.png" width="300" /> 
 
 ## Further Development
 
